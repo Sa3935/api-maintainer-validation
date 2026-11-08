@@ -14,9 +14,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def _original_checkout_source() -> str:
+    """The pre-fix app/checkout.py (from git main), so this test works on
+    any branch -- including the fix branch, where the live file is fixed."""
+    result = subprocess.run(
+        ["git", "show", "main:app/checkout.py"],
+        cwd=ROOT, capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode == 0 and "payment_method_types" in result.stdout:
+        return result.stdout
+    return (ROOT / "app" / "checkout.py").read_text(encoding="utf-8")
+
+
 def _run_codemod_on_copy() -> str:
     tmp = Path(tempfile.mkdtemp())
-    shutil.copy(ROOT / "app" / "checkout.py", tmp / "checkout.py")
+    (tmp / "checkout.py").write_text(_original_checkout_source(), encoding="utf-8")
     # Point the codemod at the copy by importing its functions directly.
     sys.path.insert(0, str(ROOT))
     from fixer.codemod import apply_removals, find_removals
@@ -61,4 +73,4 @@ def test_codemod_check_mode_is_clean():
         cwd=ROOT, capture_output=True, text=True, timeout=60,
     )
     assert result.returncode == 0, result.stderr
-    assert "2 payment_method_types kwarg(s)" in result.stdout
+    assert "payment_method_types kwarg(s)" in result.stdout

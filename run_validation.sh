@@ -2,7 +2,7 @@
 # Full validation loop. Run from the repo root: ./run_validation.sh
 # Exits 0 if the loop ran to completion; the GO/NO-GO verdict is printed
 # and written to validation_results.json (exit code is NOT the verdict).
-set -u
+set -uo pipefail
 cd "$(dirname "$0")"
 
 export STRIPE_SUPPRESS_NOTICES=true
@@ -38,11 +38,20 @@ from app/checkout.py. Billed_until (semantic) and stripe.Reversal
 rename deliberately untouched." || echo "(nothing to commit - already applied)"
 git log --oneline -1
 
-# 4. Tests on the fix branch: everything must pass now.
+# 4. Tests on the fix branch: the full suite minus the two
+#    break-reproduction tests must pass. (Those two assert the OLD code
+#    raises 400, so on fixed code they must FAIL -- that failure is
+#    itself the proof the fix works, checked explicitly just below.)
 step "4/5 pytest on fix branch (expect ALL to pass)"
 set +e
-"$PY" -m pytest tests/ -q 2>&1 | tail -8
+"$PY" -m pytest tests/ -q \
+  --deselect tests/test_breaks.py::test_checkout_breaks_on_endive \
+  --deselect tests/test_breaks.py::test_payment_intent_breaks_on_endive 2>&1 | tail -8
 FIX_PYTEST_EXIT=$?
+echo ""
+echo "--- proof the fix works: the two break-reproduction tests must now FAIL ---"
+"$PY" -m pytest tests/test_breaks.py::test_checkout_breaks_on_endive tests/test_breaks.py::test_payment_intent_breaks_on_endive -q 2>&1 | tail -4
+REPRO_EXIT=$?
 set -e
 
 # 5. Back to main, write the verdict.
@@ -65,5 +74,6 @@ EOF
 echo ""
 echo "main-branch pytest exit: $MAIN_PYTEST_EXIT (non-zero is EXPECTED: the codemod test fails on unfixed code)"
 echo "fix-branch pytest exit:  $FIX_PYTEST_EXIT (0 is required for GO)"
+echo "repro-tests-on-fix exit: $REPRO_EXIT (non-zero is EXPECTED: fixed code no longer raises 400)"
 echo "Done. Repo is back on main; the fix lives on branch fix/remove-payment-method-types"
 echo "(including patches/fix-payment-method-types.patch, committed there)."
