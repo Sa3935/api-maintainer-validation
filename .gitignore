@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+detector/report.json
+detector/report.md
+validation_results.json
+.DS_Store
