@@ -31,7 +31,10 @@ def _run_codemod_on_copy() -> str:
 
 def test_codemod_removes_only_payment_method_types():
     new_source = _run_codemod_on_copy()
-    assert "payment_method_types" not in new_source
+    from fixer.codemod import find_removals
+
+    assert find_removals(new_source) == []
+    assert 'payment_method_types=["card"]' not in new_source
     ast.parse(new_source)  # still valid Python
     # The rest of the call survives: mode, urls, line items intact.
     assert 'mode="payment"' in new_source

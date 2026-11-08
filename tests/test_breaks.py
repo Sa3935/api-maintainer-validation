@@ -54,8 +54,10 @@ def test_checkout_passes_after_codemod():
     test the fix branch must turn green.
     """
     source = (ROOT / "app" / "checkout.py").read_text(encoding="utf-8")
-    assert "payment_method_types" not in source, (
-        "app/checkout.py still sends payment_method_types -- "
+    from fixer.codemod import find_removals
+
+    assert find_removals(source) == [], (
+        "app/checkout.py still sends payment_method_types as a kwarg -- "
         "run the codemod (python -m fixer.codemod --apply)"
     )
     client = FakeStripeClient(NEW_API_VERSION)

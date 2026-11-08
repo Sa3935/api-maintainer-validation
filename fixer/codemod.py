@@ -72,8 +72,11 @@ def apply_removals(source: str, removals: list[dict]) -> str:
         lines[idx] = new_line
     result = "".join(lines)
     ast.parse(result)  # prove it is still valid Python
-    if REMOVED_KWARG in result:
-        raise ValueError("payment_method_types still present after codemod")
+    # No payment_method_types *keyword argument* may remain. The word may
+    # still appear in the module docstring (which documents the break) --
+    # so check for kwargs, not for the bare word.
+    if find_removals(result):
+        raise ValueError("payment_method_types kwarg still present after codemod")
     return result
 
 
