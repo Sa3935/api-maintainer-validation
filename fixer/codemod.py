@@ -69,7 +69,12 @@ def apply_removals(source: str, removals: list[dict]) -> str:
         new_line = line[: rem["col"]] + line[end:]
         # Clean up a double comma left behind (", ,") or trailing whitespace.
         new_line = new_line.replace(", ,", ",").rstrip() + "\n"
-        lines[idx] = new_line
+        if new_line.strip() == "":
+            # The kwarg was alone on its line: drop the line entirely
+            # instead of leaving a blank line behind.
+            lines[idx] = ""
+        else:
+            lines[idx] = new_line
     result = "".join(lines)
     ast.parse(result)  # prove it is still valid Python
     # No payment_method_types *keyword argument* may remain. The word may
