@@ -23,6 +23,7 @@ def create_checkout_session(client: FakeStripeClient, *, amount_cents: int = 200
                             "product_data": {"name": "Test product"}},
              "quantity": 1}
         ],
+        payment_method_types=["card"],
         success_url="https://example.com/success",
         cancel_url="https://example.com/cancel",
     )
@@ -33,4 +34,5 @@ def create_payment_intent(client: FakeStripeClient, *, amount_cents: int = 2000)
     return client.payment_intents_create(
         amount=amount_cents,
         currency="usd",
+        payment_method_types=["card"],
     )

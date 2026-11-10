@@ -1,1 +1,197 @@
-{"breaks":[{"api_version":"2026-09-30.endive","call_sites":["app/checkout.py"],"detection":"spec_diff","endpoints":["POST /v1/checkout/sessions","POST /v1/payment_intents","POST /v1/setup_intents"],"fixable_by_codemod":true,"id":"B1-payment_method_types-removed","kind":"request_param_removed","removed_param":"payment_method_types","replacement":"allowed_payment_method_types / dynamic payment methods","source":"https://docs.stripe.com/changelog (2026-09-30.endive); https://docs.stripe.com/payments/payment-methods/integration-options","summary":"payment_method_types removed from Checkout Sessions, PaymentIntents and SetupIntents; requests including it return HTTP 400."},{"api_version":"2026-05-27.dahlia","call_sites":["app/billing.py"],"detection":"changelog","endpoints":["GET /v1/subscription_items/{id}"],"field":"billed_until","fixable_by_codemod":false,"id":"B2-billed_until-includable","kind":"response_field_includable","reason_not_codemod":"Semantic: the fix is to request the field via expand, a decision about what the caller needs. No agent may touch this file.","source":"https://docs.stripe.com/changelog/dahlia/2026-05-27/subscription-item-billed-until-includable","summary":"billed_until on SubscriptionItem changed from returned-by-default to includable (only present when requested via expand). Code reading it directly gets an empty value silently."},{"api_version":"stripe-python 16.0.0 (pins 2026-09-30.endive)","call_sites":["app/refunds.py"],"detection":"sdk_changelog","endpoints":[],"fixable_by_codemod":false,"id":"B3-Reversal-renamed","kind":"sdk_class_renamed","new_symbol":"stripe.TransferReversal","old_symbol":"stripe.Reversal","reason_not_codemod":"Out of scope for this validation step: the codemod covers only the mechanical REST break (B1). SDK renames are a separate codemod.","source":"https://github.com/stripe/stripe-python/blob/master/CHANGELOG.md (16.0.0, PR #1915)","summary":"stripe.Reversal renamed to stripe.TransferReversal; old name raises AttributeError."}],"controls":[{"call_sites":["app/webhooks.py::create_customer"],"id":"C1-customers-create","summary":"POST /v1/customers request params identical in both specs."},{"call_sites":["app/webhooks.py::handle_webhook"],"id":"C2-webhook-construct_event","summary":"stripe.Webhook.construct_event unchanged in stripe-python 15 -> 16 (verified live against stripe==16.0.0)."}],"note":"Curated registry of the 3 real breaks used by this sandbox. Each entry is sourced from Stripe's own changelog / SDK changelog (see 'source'). The detector verifies each entry against the real specs and the app code instead of trusting this file blindly: spec_diff entries must show up in the actual spec diff, and every entry must have a matching call site in app/.","version_new":"2026-09-30.endive","version_old":"2026-03-25.dahlia"}
+{
+  "breaks": [
+    {
+      "api_version": "2026-09-30.endive",
+      "call_sites": [
+        "app/checkout.py"
+      ],
+      "detection": "spec_diff",
+      "endpoints": [
+        "POST /v1/checkout/sessions",
+        "POST /v1/payment_intents",
+        "POST /v1/setup_intents"
+      ],
+      "fixable_by_codemod": true,
+      "id": "B1-payment_method_types-removed",
+      "kind": "request_param_removed",
+      "removed_param": "payment_method_types",
+      "replacement": "allowed_payment_method_types / dynamic payment methods",
+      "source": "https://docs.stripe.com/changelog (2026-09-30.endive); https://docs.stripe.com/payments/payment-methods/integration-options",
+      "summary": "payment_method_types removed from Checkout Sessions, PaymentIntents and SetupIntents; requests including it return HTTP 400."
+    },
+    {
+      "api_version": "2026-05-27.dahlia",
+      "call_sites": [
+        "app/billing.py"
+      ],
+      "detection": "changelog",
+      "endpoints": [
+        "GET /v1/subscription_items/{id}"
+      ],
+      "field": "billed_until",
+      "fixable_by_codemod": true,
+      "id": "B2-billed_until-includable",
+      "kind": "response_field_includable",
+      "reason_not_codemod": "Semantic: the fix is to request the field via expand, a decision about what the caller needs. Fixed only via the opt-in semantic_fixes module with confirm=True, never by the default codemod.",
+      "source": "https://docs.stripe.com/changelog/dahlia/2026-05-27/subscription-item-billed-until-includable",
+      "summary": "billed_until on SubscriptionItem changed from returned-by-default to includable (only present when requested via expand). Code reading it directly gets an empty value silently.",
+      "fix": "fixer.semantic_fixes.fix_billed_until (requires confirm=True; expand=[\"billed_until\"])"
+    },
+    {
+      "api_version": "stripe-python 16.0.0 (pins 2026-09-30.endive)",
+      "call_sites": [
+        "app/refunds.py"
+      ],
+      "detection": "sdk_changelog",
+      "endpoints": [],
+      "fixable_by_codemod": true,
+      "id": "B3-Reversal-renamed",
+      "kind": "sdk_class_renamed",
+      "new_symbol": "stripe.TransferReversal",
+      "old_symbol": "stripe.Reversal",
+      "reason_not_codemod": "Out of scope for the default B1 codemod; fixed by the separate opt-in semantic_fixes module. One-way upgrade: works on stripe-python 16, breaks on 15.",
+      "source": "https://github.com/stripe/stripe-python/blob/master/CHANGELOG.md (16.0.0, PR #1915)",
+      "summary": "stripe.Reversal renamed to stripe.TransferReversal; old name raises AttributeError.",
+      "fix": "fixer.semantic_fixes.fix_reversal_rename (.Reversal -> .TransferReversal)"
+    },
+    {
+      "id": "S1-salesforce-v21-30-retired",
+      "api_version": "Salesforce Platform API 21.0-30.0",
+      "call_sites": [
+        "app/salesforce.py"
+      ],
+      "detection": "retirement",
+      "endpoints": [
+        "GET /services/data/v28.0/query"
+      ],
+      "fix": "Bump the pinned API version to 41.0 or later (no codemod: version string is a config decision).",
+      "fixable_by_codemod": false,
+      "kind": "api_version_retired",
+      "source": "https://developer.salesforce.com/docs/platform/api-rest/guide/api-rest-eol.html",
+      "summary": "Salesforce Platform API versions 21.0-30.0 retired Summer '25; REST calls return HTTP 410:GONE. App pins v28.0.",
+      "vendor": "salesforce"
+    },
+    {
+      "id": "H1-hubspot-lists-v1-sunset",
+      "api_version": "HubSpot Contact Lists API v1",
+      "call_sites": [
+        "app/hubspot.py"
+      ],
+      "detection": "sunset",
+      "endpoints": [
+        "GET /contacts/v1/lists/:id"
+      ],
+      "fix": "Migrate to the Lists v3 API (no codemod: endpoint path changes).",
+      "fixable_by_codemod": false,
+      "kind": "api_sunset",
+      "source": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+      "summary": "HubSpot Contact Lists API (v1) sunset April 30, 2026; v1 Lists endpoints return HTTP 404.",
+      "vendor": "hubspot"
+    },
+    {
+      "id": "T1-twilio-programmable-chat-sunset",
+      "api_version": "Twilio Programmable Chat v1",
+      "call_sites": [
+        "app/twilio.py"
+      ],
+      "detection": "sunset",
+      "endpoints": [
+        "POST /v1/Services/{sid}/Channels"
+      ],
+      "fix": "Migrate to the Twilio Conversations API (no codemod: different API).",
+      "fixable_by_codemod": false,
+      "kind": "api_sunset",
+      "source": "https://www.twilio.com/en-us/changelog/programmable-chat-end-of-life-notice",
+      "summary": "Twilio Programmable Chat API sunset July 25, 2022; migrate to Conversations. Mock models post-sunset calls as 410:GONE (Twilio named the date, not a status code).",
+      "vendor": "twilio"
+    },
+    {
+      "id": "N1-stripe-node-21-wrong-parser-throws",
+      "api_version": "stripe-node 21.0.0 (pins 2026-03-25.dahlia)",
+      "call_sites": [
+        "node_app/webhook.js"
+      ],
+      "detection": "node_sdk_changelog",
+      "endpoints": [],
+      "fix": "Use constructEvent for snapshot (v1) events and parseEventNotification for thin (v2.core.event) notifications (no codemod: call-site logic).",
+      "fixable_by_codemod": false,
+      "kind": "sdk_wrong_parser_throws",
+      "source": "https://github.com/stripe/stripe-node/releases/tag/v21.0.0 (PR #2616 / #2618)",
+      "summary": "stripe-node 21: constructEvent throws on a thin event and parseEventNotification throws on a snapshot event; before 21 the wrong parser returned silently. Verified live against real stripe@21.0.0 vs stripe@20.0.0.",
+      "vendor": "stripe-node"
+    }
+  ],
+  "controls": [
+    {
+      "call_sites": [
+        "app/webhooks.py::create_customer"
+      ],
+      "id": "C1-customers-create",
+      "summary": "POST /v1/customers request params identical in both specs."
+    },
+    {
+      "call_sites": [
+        "app/webhooks.py::handle_webhook"
+      ],
+      "id": "C2-webhook-construct_event",
+      "summary": "stripe.Webhook.construct_event unchanged in stripe-python 15 -> 16 (verified live against stripe==16.0.0)."
+    },
+    {
+      "call_sites": [
+        "app/salesforce.py::query_accounts (v60.0)"
+      ],
+      "id": "C3-salesforce-v60-supported",
+      "summary": "Salesforce API v60.0 is supported; query works."
+    },
+    {
+      "call_sites": [
+        "app/hubspot.py::get_list_v3"
+      ],
+      "id": "C4-hubspot-lists-v3",
+      "summary": "HubSpot Lists v3 is the migration target; works."
+    },
+    {
+      "call_sites": [
+        "app/twilio.py::create_conversation"
+      ],
+      "id": "C5-twilio-conversations",
+      "summary": "Twilio Conversations v1 is the migration target; works."
+    },
+    {
+      "call_sites": [
+        "node_app/webhook.js::handleSnapshotEvent, handleThinEvent"
+      ],
+      "id": "C6-node-correct-parser",
+      "summary": "Correct parser per event type works on stripe-node 21."
+    }
+  ],
+  "note": "Curated registry of the 3 real breaks used by this sandbox. Each entry is sourced from Stripe's own changelog / SDK changelog (see 'source'). The detector verifies each entry against the real specs and the app code instead of trusting this file blindly: spec_diff entries must show up in the actual spec diff, and every entry must have a matching call site in app/. Added 2026-11-09 (expand/multi-api): S1, H1, T1, N1 are already-broken (counted in the GO verdict); S2 and H2 are upcoming warnings (counted separately, not in the GO denominator). Retirement/sunset/node entries are verified against the vendor's own docs/changelog plus a matching call site in app/ or node_app/; see detector/data/vendor_retirements.json and docs/MULTI_API_SOURCES.md.",
+  "version_new": "2026-09-30.endive",
+  "version_old": "2026-03-25.dahlia",
+  "upcoming": [
+    {
+      "id": "S2-salesforce-v31-40-retire-2028",
+      "api_version": "Salesforce Platform API 31.0-40.0",
+      "call_sites": [
+        "app/salesforce.py"
+      ],
+      "detection": "retirement",
+      "kind": "api_version_retirement_upcoming",
+      "source": "https://developer.salesforce.com/docs/platform/api-rest/guide/api-rest-eol.html",
+      "summary": "Versions 31.0-40.0: supported now, deprecated and unsupported from Summer '27, RETIRED from Summer '28 (REST 410:GONE). App pins v35.0 as the upcoming-warning case.",
+      "vendor": "salesforce"
+    },
+    {
+      "id": "H2-hubspot-pipelines-v1-sunset-2026-12-04",
+      "api_version": "HubSpot Pipelines API v1",
+      "call_sites": [
+        "app/hubspot.py"
+      ],
+      "detection": "sunset",
+      "kind": "api_sunset_upcoming",
+      "source": "https://developers.hubspot.com/changelog/pipelines-api-v1-sunset",
+      "summary": "Pipelines API V1 sunsets December 4, 2026; v1 endpoints stop responding after that date. Migrate to the 2026-03 or newer version.",
+      "vendor": "hubspot"
+    }
+  ]
+}
