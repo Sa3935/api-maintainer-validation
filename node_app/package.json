@@ -1,0 +1,1 @@
+{"dependencies":{"stripe":"21.0.0"},"description":"Node reproduction of the stripe-node 21 wrong-webhook-parser break (no network calls, no real keys; test secret only).","name":"api-maintainer-validation-node","private":true,"scripts":{"test":"node test_node_breaks.js"},"version":"1.0.0"}

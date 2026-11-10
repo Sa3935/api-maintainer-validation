@@ -1,0 +1,23 @@
+{
+  "generated_files": 150,
+  "generated_lines": 1179,
+  "real_break_files": 6,
+  "control_files": 120,
+  "decoy_files": 24,
+  "real_call_sites_found": 6,
+  "real_call_sites_total": 6,
+  "real_call_sites": {
+    "payment_method_types": true,
+    "billed_until": true,
+    "Reversal": true,
+    "v28.0": true,
+    "lists_v1": true,
+    "chat_channels_create": true
+  },
+  "control_files_flagged_as_breaks": [],
+  "false_positives": 0,
+  "call_site_hits_total": 30,
+  "decoy_comment_only_hits": 24,
+  "other_unexpected_hits": 0,
+  "call_site_precision_note": "Text-based call-site scan counts comment/docstring-only mentions as hits: 24 of 30 hits are decoy-only. Registry-anchored detection (known_breaks.json call_sites) is unaffected. A production detector would need AST-level call-site mapping to fix this."
+}
