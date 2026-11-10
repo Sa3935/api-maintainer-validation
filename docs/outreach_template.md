@@ -26,10 +26,12 @@ complaining about a Stripe upgrade in public.
 ## Record answers here
 | Team / repo | Breaks hit them? | Would pay? | Price they'd pay | Notes |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| Gumroad (antiwork/gumroad) | — | — | — | Not reached — PR #6290 merged, interactions restricted to collaborators only. User decided 2026-11-10 to leave at 4. |
+| OpenCode (anomalyco/opencode) | Not answered | **No** | — | Gurvir-Dhillon (issue author) replied 2026-11-10 2:31 PM EST on issue #62639: "No I wouldn't" — https://github.com/anomalyco/opencode/issues/62639#issuecomment-6777192918 |
+| Zulip (zulip/zulip) | — | — | — | Issue #40652 opened 2026-11-10, no reply as of 2:37 PM EST check. |
+| Habitica (HabitRPG/habitica) | — | — | — | Issue #15743 opened 2026-11-10, no reply as of 2:37 PM EST check. |
+| Ghost (TryGhost/Ghost) | — | — | — | Issue #32744 opened 2026-11-10, no reply as of 2:37 PM EST check (only an automated "needs:triage" label). |
+
+Tally as of 2026-11-10 2:37 PM EST: 0 yes, 1 no, 3 awaiting reply. Go/no-go needs at least 2 yes.
 
 Go/no-go on outreach: proceed only if at least 2 of 5 say they would pay.
